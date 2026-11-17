@@ -1,0 +1,47 @@
+{% load static %}<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nosotros · Arena Burger</title>
+  <link rel="icon" type="image/jpeg" href="{% static 'menu/logo.jpeg' %}">
+  <link rel="stylesheet" href="{% static 'menu/motion.css' %}?v={{ app_version }}">
+</head>
+<body class="about-page">
+  <header class="about-header"><a class="about-brand" href="{% url 'index' %}"><img src="{% static 'menu/logo.jpeg' %}" alt=""><span>ARENA <b>BURGER</b></span></a><nav aria-label="Navegación principal"><a href="{% url 'index' %}#menu">Menú</a><a href="{% url 'about' %}" aria-current="page">Nosotros</a></nav></header>
+  <main class="about-page-content">
+    <a class="about-back" href="{% url 'index' %}#menu">← Volver al menú</a>
+  <section id="nosotros" class="about-section">
+    <div class="about-layout">
+      <div class="about-story">
+        <p class="about-eyebrow">NOSOTROS · ARENA BURGER</p>
+        <h1>La pasión<br>se lleva <span>puesta.</span></h1>
+        <p>Detrás de cada pedido hay alguien que se pone la camiseta. Esta es la nuestra: Arena Burger, con el fuego en la espalda y las ganas de preparar tu próxima favorita.</p>
+        <p>Desde Ingeniero Adolfo Sourdeaux, te mostramos un poquito de nuestro lado de la cocina. Las papas, el delantal y ese último detalle antes de entregar tu burger.</p>
+        <div class="about-values"><span>Nuestra gente</span><span>Nuestra cocina</span><span>Nuestro sello</span></div>
+        <a href="{% url 'index' %}#menu" class="about-cta">Encontrá tu próxima favorita <span aria-hidden="true">↗</span></a>
+        <a class="about-mobile-link" href="#about-contact">Conocé dónde encontrarnos ↓</a>
+      </div>
+      <div class="about-visual">
+        {% for image in about_photos %}{% if forloop.first %}
+        <figure class="about-main-photo"><img src="{{ image.photo.url }}" alt="{{ image.title }}" width="1200" height="1600" fetchpriority="high" decoding="async"><figcaption><span class="about-photo-kicker">EL EQUIPO ARENA</span>{{ image.caption|default:image.title }}</figcaption></figure>
+        {% endif %}{% empty %}
+        <figure class="about-main-photo"><img src="{% static 'menu/logo.jpeg' %}" alt="Arena Burger" width="1254" height="1254"><figcaption>El equipo detrás de tu próxima burger.</figcaption></figure>
+        {% endfor %}
+        <span class="about-stamp" aria-hidden="true">SOMOS<br><b>ARENA</b></span>
+      </div>
+    </div>
+    {% if about_photos|length > 1 %}
+    <div class="about-behind-heading"><p class="about-eyebrow">DEL OTRO LADO DEL MOSTRADOR</p><h2>Los detalles también<br><span>son parte del pedido.</span></h2></div>
+    <div class="about-moments" aria-label="Fotos de Arena Burger">
+      {% for image in about_photos %}{% if not forloop.first %}
+      <article class="about-moment"><figure><img src="{{ image.photo.url }}" alt="{{ image.title }}" loading="lazy" decoding="async" width="1200" height="900"></figure><div class="about-moment-copy"><span class="about-photo-kicker">HECHO EN ARENA</span><h3>{{ image.title }}</h3>{% if image.caption %}<p>{{ image.caption }}</p>{% endif %}</div></article>
+      {% endif %}{% endfor %}
+    </div>{% endif %}
+  </section>
+
+
+    <div id="about-contact" class="about-contact"><p class="about-eyebrow">TE ESPERAMOS</p><h2>Tu próxima burger está acá.</h2><p>{{ store_address }}</p><p>Todos los días de 19:00 a 00:00</p><a class="about-cta" href="{% url 'index' %}#menu">Ver el menú ↗</a></div>
+  </main>
+  <footer class="about-footer">© {% now "Y" %} Arena Burger</footer>
+  {% include 'menu/whatsapp.html' %}
+</body></html>

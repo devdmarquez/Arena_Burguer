@@ -1,0 +1,134 @@
+{% load static %}<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arena Burger</title>
+  <link rel="icon" type="image/jpeg" href="{% static 'menu/logo.jpeg' %}" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{% static 'menu/motion.css' %}?v={{ app_version }}">
+</head>
+<body class="storefront min-h-screen bg-[#0d1117] text-white">
+  <div class="side-flames" aria-hidden="true">
+    <svg class="side-flame side-flame-left" viewBox="0 0 180 320" fill="none" focusable="false">
+      <path class="flame-outer" d="M89 296C30 296 15 250 32 211C40 191 42 173 36 154C65 169 68 196 65 208C88 178 65 139 81 104C91 81 108 65 105 25C148 69 156 111 136 159C129 176 131 195 145 211C150 197 151 184 148 175C185 218 167 296 108 296"/>
+      <path class="flame-inner" d="M91 276C65 267 67 243 79 225C91 208 103 195 100 171C122 191 128 214 117 236C111 248 114 260 122 266"/>
+      <path class="flame-ground" d="M47 309C73 313 111 313 139 309"/>
+    </svg>
+    <svg class="side-flame side-flame-right" viewBox="0 0 180 320" fill="none" focusable="false">
+      <path class="flame-outer" d="M89 296C30 296 15 250 32 211C40 191 42 173 36 154C65 169 68 196 65 208C88 178 65 139 81 104C91 81 108 65 105 25C148 69 156 111 136 159C129 176 131 195 145 211C150 197 151 184 148 175C185 218 167 296 108 296"/>
+      <path class="flame-inner" d="M91 276C65 267 67 243 79 225C91 208 103 195 100 171C122 191 128 214 117 236C111 248 114 260 122 266"/>
+      <path class="flame-ground" d="M47 309C73 313 111 313 139 309"/>
+    </svg>
+  </div>
+
+  <header class="sticky top-0 z-10 border-b border-white/10 bg-[#0d1117]/90 backdrop-blur">
+    <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-3">
+      <a href="#inicio" class="flex items-center gap-3">
+        <img src="{% static 'menu/logo.jpeg' %}" alt="Arena Burger" class="h-12 w-12 rounded-full object-cover" />
+        <span class="text-xl font-extrabold uppercase tracking-wider">Arena <span class="text-orange-500">Burger</span></span>
+      </a>
+      <nav class="order-last flex w-full justify-center gap-8 text-sm font-semibold uppercase tracking-wide text-white/80 sm:order-none sm:w-auto">
+        <a href="#menu" class="hover:text-orange-500">Menú</a>
+        <a href="{% url 'about' %}" class="hover:text-orange-500">Nosotros</a>
+        <a href="#contacto" class="hover:text-orange-500">Contacto</a>
+      </nav>
+      <button type="button" id="cart-button" class="rounded-full bg-orange-500 px-4 py-2 text-sm font-bold text-black">Carrito (<span id="cart-count">0</span>)</button>
+    </div>
+  </header>
+
+  <section id="inicio" class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(249,115,22,0.25),transparent_60%)]"></div>
+    <div class="relative mx-auto flex max-w-6xl flex-col items-center px-6 py-16 text-center md:py-24">
+      <img src="{% static 'menu/logo.jpeg' %}" alt="Logo Arena Burger"
+           class="h-64 w-64 rounded-full object-cover shadow-[0_0_80px_rgba(249,115,22,0.45)] md:h-80 md:w-80" />
+      <h1 class="mt-8 text-5xl font-black uppercase tracking-tight md:text-7xl">Arena <span class="text-orange-500">Burger</span></h1>
+      <p class="mt-4 max-w-xl text-lg text-white/70">
+        Hamburguesas a la parrilla, jugosas y con mucho fuego. Entrá a la arena y probá la diferencia.
+      </p>
+      <a href="#menu" class="mt-8 rounded-full bg-orange-500 px-8 py-3 font-bold uppercase tracking-wide text-black transition hover:bg-orange-400">Ver menú</a>
+    </div>
+  </section>
+
+  <section id="menu" class="mx-auto max-w-6xl px-6 py-16">
+    <h2 class="text-center text-3xl font-black uppercase md:text-4xl">Nuestro <span class="text-orange-500">menú</span></h2>
+    <p class="mt-2 text-center text-white/60">Elegí tu categoría y armá el pedido a tu gusto</p>
+    <nav class="menu-categories" aria-label="Categorías del menú">
+      <a href="#hamburguesas" class="category-link">Hamburguesas <span>{{ burgers|length }}</span></a>
+      {% for group in product_groups %}<a href="#{{ group.id }}" class="category-link">{{ group.label }} <span>{{ group.items|length }}</span></a>{% endfor %}
+    </nav>
+    <div id="hamburguesas" class="menu-category-heading">
+      <div><p class="category-eyebrow">A la parrilla</p><h3>Hamburguesas</h3><p class="mt-2 text-sm text-white/60">Elegí tu favorita y personalizala con aderezos y extras.</p></div>
+      <span class="category-count">{{ burgers|length }} opciones</span>
+    </div>
+    <div class="mt-6 grid gap-6 sm:grid-cols-2">
+      {% for b in burgers %}
+      <button type="button" data-burger="{{ b.id }}"
+              class="burger-card group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-left transition hover:-translate-y-1 hover:border-orange-500/60">
+        <div class="aspect-[4/3] w-full shrink-0 overflow-hidden bg-[#141a23]">
+          {% if b.photo %}
+          <img src="{{ b.photo.url }}" alt="{{ b.name }}" loading="lazy" decoding="async"
+               class="h-full w-full object-cover object-center transition duration-500 group-hover:scale-105" />
+          {% else %}
+          <div class="flex h-full items-center justify-center bg-gradient-to-br from-orange-500/10 to-transparent text-sm text-white/40">Foto próximamente</div>
+          {% endif %}
+        </div>
+        <div class="flex flex-1 flex-col p-6">
+        <div class="flex items-baseline justify-between gap-4">
+          <h3 class="text-xl font-bold uppercase">{{ b.name }}</h3>
+          <span class="font-bold text-orange-500">{% if b.has_discount %}<span class="block text-xs text-white/50"><del>${{ b.price }}</del> · {{ b.discount_percent }}% OFF</span>{% endif %}${{ b.sale_price }}</span>
+        </div>
+        <p class="mt-2 text-white/65">{{ b.description }}</p>
+        <span class="mt-auto inline-block pt-4 text-sm font-bold uppercase tracking-wide text-orange-500 group-hover:underline">Pedir →</span>
+        </div>
+      </button>
+      {% empty %}
+      <p class="col-span-full text-center text-white/60">Todavía no hay hamburguesas cargadas. Agregalas desde /admin.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% for group in product_groups %}
+  <section id="{{ group.id }}" class="mx-auto max-w-6xl px-6 pb-16">
+    <div class="menu-category-heading">
+      <div><p class="category-eyebrow">Completá tu pedido</p><h2>{{ group.title }}</h2><p class="mt-2 text-sm text-white/60">{{ group.description }}</p></div>
+      <a href="#menu" class="category-back">Ver categorías ↑</a>
+    </div>
+    <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {% for p in group.items %}
+      <article class="product-card flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+        {% if p.photo %}<img src="{{ p.photo.url }}" alt="{{ p.name }}" loading="lazy" class="aspect-[4/3] w-full object-cover">
+        {% else %}<div class="flex aspect-[4/3] items-center justify-center bg-orange-500/5 font-bold uppercase tracking-wide text-orange-400">{{ p.get_category_display }}</div>{% endif %}
+        <div class="flex flex-1 flex-col p-5">
+          <h3 class="text-lg font-bold">{{ p.name }}</h3>
+          {% if p.description %}<p class="mt-2 text-sm text-white/60">{{ p.description }}</p>{% endif %}
+          <p class="mt-3 font-bold text-orange-400">{% if p.has_discount %}<del class="mr-2 text-sm font-normal text-white/50">${{ p.price }}</del><span class="mr-2 rounded bg-orange-500/15 px-2 text-xs">{{ p.discount_percent }}% OFF</span>{% endif %}${{ p.sale_price }}</p>
+          <button type="button" data-product="{{ p.pk }}" class="mt-auto w-full rounded-full border border-orange-500/50 py-2 font-bold text-orange-400 transition hover:bg-orange-500/10" style="margin-top:16px">Agregar al carrito</button>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+
+  <footer id="contacto" class="border-t border-white/10 py-10 text-center">
+    <img src="{% static 'menu/logo.jpeg' %}" alt="Arena Burger" class="mx-auto h-16 w-16 rounded-full object-cover" />
+    <p class="mt-3 font-bold uppercase tracking-wider">Arena Burger</p>
+    <p class="mt-1 text-sm text-white/60">Todos los días de 19:00 a 00:00</p>
+    <p class="mt-2 text-sm text-white/60">{{ data.shipping.address }}</p>
+    <a href="{% url 'about' %}" class="mt-3 inline-block text-sm text-orange-400">Conocé Arena · Nosotros</a>
+    <p class="mt-4 text-xs text-white/40">© {% now "Y" %} Arena Burger</p>
+  </footer>
+
+  <!-- Contenedor donde el JS dibuja los desplegables -->
+  {% include 'menu/whatsapp.html' %}
+  <div id="modal-root"></div>
+  <p id="cart-status" role="status" class="fixed bottom-4 left-4 right-4 z-[60] hidden rounded-xl bg-[#141a23] p-4 text-center text-white shadow-xl"></p>
+  <form class="hidden">{% csrf_token %}</form>
+
+  <script id="cart-url" type="application/json">"{% url 'cart' %}"</script>
+  <script id="checkout-url" type="application/json">"{% url 'checkout' %}"</script>
+  {{ data|json_script:"menu-data" }}
+  <script src="{% static 'menu/app.js' %}?v={{ app_version }}"></script>
+</body>
+</html>

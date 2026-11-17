@@ -1,0 +1,38 @@
+{% load static %}<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}Pedidos{% endblock %} · Arena Burger</title>
+  <link rel="icon" type="image/jpeg" href="{% static 'menu/logo.jpeg' %}">
+  <style>
+    :root{color-scheme:dark;--bg:#0d1117;--surface:#141a23;--line:rgba(255,255,255,.11);--muted:#a4aab4;--orange:#f97316}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top right,#40200d 0,transparent 35%),var(--bg);color:#f5f5f5;font:15px/1.5 system-ui,sans-serif;min-height:100vh}a{color:inherit;text-decoration:none}button,input,select{font:inherit}button,a,input,select,summary{outline-offset:4px}header{border-bottom:1px solid var(--line);background:#0d1117ed}.bar{max-width:1400px;margin:auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:900;letter-spacing:.04em}.brand img{width:48px;height:48px;border-radius:50%;object-fit:cover}.orange{color:var(--orange)}.muted{color:var(--muted)}nav{display:flex;align-items:center;gap:16px;flex-wrap:wrap}nav form{margin:0}main{max-width:1400px;margin:auto;padding:32px 24px 60px}h1,h2,h3,p{margin:0}h1{font-size:clamp(27px,4vw,40px);text-transform:uppercase;line-height:1.2}h2{font-size:21px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:10px 18px;background:transparent;color:inherit;font-weight:700;cursor:pointer;min-height:44px}.btn:hover{border-color:var(--orange);background:#f9731610}.btn-primary{background:var(--orange);border-color:var(--orange);color:#0d1117}.btn-primary:hover{background:#fb923c}.btn-cancel{color:#fca5a5}.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px}.badge{display:inline-block;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:800;background:#ffffff10;border:1px solid var(--line)}.badge-new,.badge-pending{color:#fdba74;background:#f9731615}.badge-paid,.badge-completed{color:#86efac;background:#22c55e15}.badge-preparing{color:#93c5fd;background:#3b82f615}.badge-ready{color:#d8b4fe;background:#a855f715}.badge-failed,.badge-cancelled{color:#fca5a5;background:#ef444415}.messages{display:grid;gap:10px;margin-bottom:24px}.notice{border:1px solid #f9731644;background:#f9731610;padding:14px 18px;border-radius:14px}.errorlist{color:#fca5a5;padding-left:20px}input,select{width:100%;border:1px solid var(--line);border-radius:12px;background:#0d1117;padding:12px;color:inherit}input:focus,select:focus{border-color:var(--orange)}label{display:block;font-weight:700;font-size:14px;margin-bottom:6px}.empty{text-align:center;padding:70px 20px}.empty p{margin:10px 0 24px}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px}.filters{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin:24px 0}.filters .search{flex:1;min-width:200px}.filters .mode{min-width:190px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}.tab{border:1px solid var(--line);border-radius:999px;padding:9px 14px;font-weight:700}.tab.active{border-color:var(--orange);background:#f9731620;color:#fdba74}.tab span{margin-left:8px;color:var(--muted)}.orders{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.order-head{display:flex;justify-content:space-between;align-items:start;gap:12px}.order-head .badges{display:flex;justify-content:end;gap:6px;flex-wrap:wrap}.customer{margin:18px 0 14px;overflow-wrap:anywhere}.customer strong{font-size:18px}.customer a{color:#fdba74}.items{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:16px 0;display:grid;gap:16px}.item-head,.amount{display:flex;justify-content:space-between;gap:14px}.items small{display:block;color:var(--muted);margin-top:4px}.notes{padding:8px 10px;background:#ffffff08;border-radius:8px;margin-top:6px;white-space:pre-wrap;overflow-wrap:anywhere}.amounts{display:grid;gap:6px;padding:16px 0}.actions{display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:16px}.actions form{margin:0}details summary{cursor:pointer;color:#fca5a5;padding:10px 0}details form{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.pagination{display:flex;justify-content:center;align-items:center;gap:18px;margin-top:32px}.login{max-width:460px;margin:35px auto}.login form{display:grid;gap:18px;margin-top:24px}.login h1{font-size:30px}.login .btn{width:100%}.top-description{margin-top:10px;max-width:720px}.address{white-space:pre-wrap}.subnote{font-size:13px}.total{font-size:18px;font-weight:800}@media(max-width:800px){.orders{grid-template-columns:1fr}main{padding:24px 16px 48px}.bar{padding:14px 16px}.card{padding:20px}.order-head{flex-wrap:wrap}.order-head .badges{justify-content:start}.filters .mode{flex:1}.brand{font-size:17px}}
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <header><div class="bar">
+    <a class="brand" href="{% url 'owner_orders' %}"><img src="{% static 'menu/logo.jpeg' %}" alt=""><span>ARENA <span class="orange">BURGER</span></span></a>
+    <nav aria-label="Panel">
+      {% if user.is_authenticated %}
+      {% if perms.menu.view_order %}
+      <a href="{% url 'owner_orders' %}">Pedidos</a>
+      {% comment %}Reservado para una versión posterior:
+      <a href="{% url 'owner_statistics' %}">Estadísticas</a>
+      {% endcomment %}
+      {% endif %}
+      <span class="muted">{{ user.username }}</span>
+      {% if user.is_staff and perms.menu.view_burger %}<a href="{% url 'admin:menu_burger_changelist' %}">Administrar menú</a>{% endif %}
+      <form method="post" action="{% url 'owner_logout' %}">{% csrf_token %}<button class="btn" type="submit">Salir</button></form>
+      {% else %}<a class="muted" href="{% url 'index' %}">Ver menú</a>{% endif %}
+    </nav>
+  </div></header>
+  <main>
+    {% if messages %}<div class="messages" role="status">{% for message in messages %}<div class="notice">{{ message }}</div>{% endfor %}</div>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

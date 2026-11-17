@@ -1,0 +1,39 @@
+{% comment %}
+Reservado para una version posterior.
+{% extends 'menu/panel/base.html' %}
+{% block title %}Estadísticas{% endblock %}
+{% block content %}
+<style>
+  .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:24px 0}.metric-number{font-size:clamp(25px,3vw,36px);font-weight:900;overflow-wrap:anywhere}.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px}.report-table{width:100%;border-collapse:collapse;margin-top:18px}.report-table th{text-align:left;color:var(--muted);font-size:13px}.report-table td,.report-table th{padding:12px 8px;border-bottom:1px solid var(--line)}.report-table .numeric{text-align:right;white-space:nowrap}.bar-track{height:7px;background:#ffffff09;border-radius:10px;overflow:hidden;margin-top:7px}.bar-fill{height:100%;background:var(--orange);border-radius:10px}.scroll-table{overflow-x:auto}.period-summary{margin:20px 0;color:var(--muted)}.filter-error{margin:12px 0}.report-caption{margin-top:12px;font-size:13px;color:var(--muted)}@media(max-width:900px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.report-grid{grid-template-columns:1fr}}@media(max-width:450px){.metrics{grid-template-columns:1fr}.filters>div{width:100%}}
+</style>
+<div class="toolbar"><div><p class="orange" style="font-weight:800;margin-bottom:8px">TU NEGOCIO EN NÚMEROS</p><h1>Estadísticas de <span class="orange">tu arena.</span></h1></div></div>
+<p class="muted top-description">Consultá las ventas por período y hamburguesa, usando los precios registrados en cada pedido.</p>
+<form method="get" class="filters">
+  {% for field in form %}<div><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{{ field.errors }}</div>{% endfor %}
+  <button class="btn btn-primary" type="submit">Ver estadísticas</button><a class="btn" href="{% url 'owner_statistics' %}">Este mes</a>
+</form>
+{% if form.non_field_errors %}<div class="notice filter-error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+{% if has_report %}
+<div class="notice">Solo cuentan como ventas los pedidos pagados y no cancelados. Los ingresos de productos no incluyen envío, costos, comisiones ni impuestos: <b>no son ganancia neta.</b></div>
+<p class="period-summary">Pedidos creados del <b>{{ start|date:'d/m/Y' }}</b> al <b>{{ end|date:'d/m/Y' }}</b> · {% if burger %}Hamburguesa: <b>{{ burger.name }}</b>. Los importes y unidades corresponden solo a esa hamburguesa y sus extras.{% else %}Todos los productos, incluidas bebidas y acompañamientos.{% endif %}</p>
+<div class="metrics">
+  <article class="card"><p class="muted">Pedidos pagados</p><p class="metric-number">{{ sales }}</p><p class="muted subnote">{% if burger %}Con la hamburguesa elegida{% else %}Ventas del período{% endif %}</p></article>
+  <article class="card"><p class="muted">Ingresos de productos</p><p class="metric-number orange">${{ revenue|floatformat:'0g' }}</p><p class="muted subnote">{% if burger %}Solo el producto filtrado y extras{% else %}Sin incluir envíos{% endif %}</p></article>
+  <article class="card"><p class="muted">Unidades vendidas</p><p class="metric-number">{{ units }}</p><p class="muted subnote">Cantidad de productos</p></article>
+  <article class="card"><p class="muted">Promedio por pedido</p><p class="metric-number">${{ average|floatformat:'0g' }}</p><p class="muted subnote">Sobre los productos del filtro</p></article>
+</div>
+<p class="muted">Fuera de las ventas: <b>{{ pending }}</b> pedidos pendientes de pago · <b>{{ cancelled }}</b> cancelados en el período y filtro seleccionados.</p>
+{% if not sales %}<section class="card empty" style="margin-top:24px"><h2>Todavía no hay ventas pagadas para este filtro</h2><p class="muted">Los pedidos pendientes siguen visibles en el panel de pedidos. Se contabilizarán como ventas cuando se confirme su pago.</p><a class="btn" href="{% url 'owner_orders' %}">Ver pedidos</a></section>{% else %}
+<div class="report-grid">
+  <section class="card"><h2>Productos más vendidos</h2><p class="report-caption">Según el nombre y el precio guardados al comprar.</p><div class="scroll-table"><table class="report-table"><thead><tr><th scope="col">Producto</th><th scope="col" class="numeric">Unidades</th><th scope="col" class="numeric">Ingresos</th></tr></thead><tbody>
+  {% for row in ranking %}<tr><td>{{ row.product_name }}<div class="bar-track" aria-hidden="true"><div class="bar-fill" style="width:{{ row.width }}%"></div></div></td><td class="numeric">{{ row.units }}</td><td class="numeric">${{ row.revenue|floatformat:'0g' }}</td></tr>{% endfor %}
+  </tbody></table></div></section>
+  <section class="card"><h2>Ingresos por {% if monthly %}mes{% else %}día{% endif %}</h2><p class="report-caption">Fecha de creación del pedido, hora de Argentina. No representa la fecha de acreditación del dinero.</p><div class="scroll-table"><table class="report-table"><thead><tr><th scope="col">{% if monthly %}Mes{% else %}Día{% endif %}</th><th scope="col" class="numeric">Ingresos</th></tr></thead><tbody>
+  {% for row in timeline %}<tr><td>{% if monthly %}{{ row.date|date:'m/Y' }}{% else %}{{ row.date|date:'d/m' }}{% endif %}<div class="bar-track" aria-hidden="true"><div class="bar-fill" style="width:{{ row.width }}%"></div></div></td><td class="numeric">${{ row.revenue|floatformat:'0g' }}</td></tr>{% endfor %}
+  </tbody></table></div></section>
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}
+
+{% endcomment %}

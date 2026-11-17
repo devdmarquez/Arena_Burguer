@@ -1,0 +1,16 @@
+{% extends 'menu/panel/base.html' %}
+{% block title %}Ingresar{% endblock %}
+{% block content %}
+<section class="card login">
+  <p class="orange" style="font-weight:800;margin-bottom:10px">GESTIÓN DEL LOCAL</p>
+  <h1>Tu cocina,<br>en <span class="orange">orden.</span></h1>
+  <p class="muted top-description">Ingresá para consultar y gestionar los pedidos de Arena Burger.</p>
+  <form method="post">{% csrf_token %}
+    {{ form.non_field_errors }}
+    <div><label for="{{ form.username.id_for_label }}">Usuario</label>{{ form.username }}{{ form.username.errors }}</div>
+    <div><label for="{{ form.password.id_for_label }}">Contraseña</label>{{ form.password }}{{ form.password.errors }}</div>
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="btn btn-primary" type="submit">Ingresar al panel</button>
+  </form>
+</section>
+{% endblock %}

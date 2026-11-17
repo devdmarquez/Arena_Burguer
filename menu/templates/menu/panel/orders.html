@@ -1,0 +1,78 @@
+{% extends 'menu/panel/base.html' %}
+{% load l10n static %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'menu/panel.css' %}">{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <div><p class="orange" style="font-weight:800;margin-bottom:8px">GESTIÓN DEL LOCAL</p><h1>Los pedidos de <span class="orange">tu arena.</span></h1></div>
+  <div class="board-controls"><label class="auto-refresh"><input type="checkbox" id="auto-refresh" checked> Actualizar cada 20 s</label><button class="btn" type="button" id="fullscreen">Pantalla completa</button><a class="btn" href="{% querystring %}">Actualizar pedidos</a></div>
+</div>
+<p class="muted top-description">Los más recientes primero. Tocá una tarjeta para ver el detalle y gestionar el pedido.</p>
+<p id="board-feedback" class="muted subnote" role="status">Actualización automática activa. Se pausa mientras ves un detalle.</p>
+<form method="get" class="filters">
+  <input type="hidden" name="status" value="{{ selected_status }}">
+  <div class="search"><label for="q">Buscar pedido</label><input id="q" name="q" value="{{ query }}" maxlength="100" placeholder="Número, nombre o teléfono"></div>
+  <div class="mode"><label for="fulfillment">Modalidad</label><select name="fulfillment" id="fulfillment"><option value="">Todas</option><option value="pickup" {% if fulfillment == 'pickup' %}selected{% endif %}>Retiro en el local</option><option value="delivery" {% if fulfillment == 'delivery' %}selected{% endif %}>Entrega a domicilio</option></select></div>
+  <button class="btn btn-primary" type="submit">Buscar</button><a class="btn" href="{% url 'owner_orders' %}">Limpiar</a>
+</form>
+<nav class="tabs" aria-label="Filtrar por preparación">
+  {% for tab in tabs %}<a class="tab {% if selected_status == tab.value %}active{% endif %}" {% if selected_status == tab.value %}aria-current="page"{% endif %} href="{% querystring status=tab.value page=None %}">{{ tab.label }}<span>{{ tab.count }}</span></a>{% endfor %}
+</nav>
+<div class="orders">
+{% for order in page_obj %}
+  <button type="button" class="order-tile tile-{{ order.status }}" data-order-dialog="detalle-{{ order.pk }}" aria-haspopup="dialog" aria-controls="detalle-{{ order.pk }}">
+    <span class="tile-top"><span class="tile-number">#{{ order.pk }}</span><time datetime="{{ order.created_at|date:'c' }}">{{ order.created_at|date:'d/m · H:i' }}</time></span>
+    <span class="tile-status">{{ order.get_status_display }}</span>
+    <span class="tile-customer">{{ order.customer_name }}</span>
+    <span class="tile-bottom"><span>{{ order.get_fulfillment_display }}</span><strong>{% if order.total is None %}A confirmar{% else %}${{ order.total }}{% endif %}</strong></span>
+    <span class="tile-payment badge badge-{{ order.payment_status }}">{{ order.payment_label }}</span>
+  </button>
+  <dialog class="order-dialog" id="detalle-{{ order.pk }}" aria-labelledby="titulo-{{ order.pk }}">
+  <article class="card" id="pedido-{{ order.pk }}">
+    <button class="dialog-close btn" type="button" data-close-dialog aria-label="Cerrar detalle" autofocus>✕ Cerrar</button>
+    <div class="order-head">
+      <div><h2 id="titulo-{{ order.pk }}">Pedido <span class="orange">#{{ order.pk }}</span></h2><p class="muted subnote">{{ order.created_at|date:'d/m/Y · H:i' }}</p></div>
+      <div class="badges"><span class="badge badge-{{ order.status }}">{{ order.get_status_display }}</span><span class="badge badge-{{ order.payment_status }}">{{ order.payment_label }}</span></div>
+    </div>
+    <div class="customer"><strong>{{ order.customer_name }}</strong><br><a href="tel:{{ order.phone }}">{{ order.phone }}</a><p style="margin-top:8px"><b>{{ order.get_fulfillment_display }}</b></p>
+      {% if order.address %}<p class="address">{{ order.address }}</p>{% endif %}
+      {% if order.locality %}<p>{{ order.locality }}</p>{% endif %}
+      {% if order.reference %}<p class="muted">Referencias: {{ order.reference }}</p>{% endif %}
+      {% if order.delivery_latitude is not None %}<p class="muted subnote">{{ order.delivery_distance_m }} m en línea recta · <a href="https://www.google.com/maps?q={{ order.delivery_latitude|unlocalize }},{{ order.delivery_longitude|unlocalize }}" target="_blank" rel="noopener noreferrer">Ver punto de entrega</a></p>{% endif %}
+    </div>
+    <div class="items">
+      {% for item in order.items.all %}<div>
+        <div class="item-head"><b>{{ item.quantity }} × {{ item.product_name }}</b><span>${{ item.subtotal }}</span></div>
+        <small>Aderezos: {{ item.aderezos|join:', '|default:'Ninguno' }}</small>
+        <small>Extras: {% for extra in item.extras %}{{ extra.name }} (+${{ extra.price }}){% if not forloop.last %}, {% endif %}{% empty %}Ninguno{% endfor %}</small>
+        {% if item.notes %}<p class="notes">{{ item.notes }}</p>{% endif %}
+      </div>{% endfor %}
+    </div>
+    <div class="amounts">
+      <div class="amount muted"><span>Productos</span><span>${{ order.products_total }}</span></div>
+      <div class="amount muted"><span>Envío</span><span>{% if order.delivery_fee is None %}A confirmar{% elif order.delivery_fee == 0 %}Sin costo{% else %}${{ order.delivery_fee }}{% endif %}</span></div>
+      <div class="amount total"><span>Total final</span><span>{% if order.total is None %}Pendiente{% else %}${{ order.total }}{% endif %}</span></div>
+      {% if order.delivery_fee is None %}<p class="muted subnote">Falta confirmar costo y cobertura del envío con el cliente.</p>{% endif %}
+      {% if order.payment_status != 'paid' %}<p class="orange subnote">Este pedido no figura como pagado. Prepararlo no modifica el estado del pago.</p>{% endif %}
+    </div>
+    <div class="actions">
+      {% for value, label in order.transitions %}
+        {% if value == 'cancelled' %}
+        <details><summary>Cancelar pedido</summary><form method="post" action="{% url 'owner_order_status' order.pk %}">{% csrf_token %}<input type="hidden" name="status" value="cancelled"><input type="hidden" name="expected_status" value="{{ order.status }}"><input type="hidden" name="return_to" value="{{ request.get_full_path }}"><span class="subnote">¿Cancelar el pedido #{{ order.pk }}?</span><button class="btn btn-cancel" type="submit">Sí, cancelar</button></form></details>
+        {% else %}
+        <form method="post" action="{% url 'owner_order_status' order.pk %}">{% csrf_token %}<input type="hidden" name="status" value="{{ value }}"><input type="hidden" name="expected_status" value="{{ order.status }}"><input type="hidden" name="return_to" value="{{ request.get_full_path }}"><button class="btn btn-primary" type="submit">{{ label }}</button></form>
+        {% endif %}
+      {% empty %}<p class="muted subnote">{% if order.status == 'completed' or order.status == 'cancelled' %}Pedido finalizado.{% else %}Tu cuenta tiene acceso de consulta.{% endif %}</p>{% endfor %}
+    </div>
+  </article>
+  </dialog>
+{% empty %}
+  <div class="card empty" style="grid-column:1/-1"><h2>No hay pedidos para mostrar</h2><p class="muted">Los pedidos registrados desde el menú aparecerán acá. Probá cambiar los filtros.</p><a class="btn" href="{% url 'owner_orders' %}">Ver todos</a></div>
+{% endfor %}
+</div>
+{% if page_obj.paginator.num_pages > 1 %}<nav class="pagination" aria-label="Páginas de pedidos">
+  {% if page_obj.has_previous %}<a class="btn" href="{% querystring page=page_obj.previous_page_number %}">Anterior</a>{% endif %}
+  <span class="muted">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}<a class="btn" href="{% querystring page=page_obj.next_page_number %}">Siguiente</a>{% endif %}
+</nav>{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{% static 'menu/panel.js' %}" defer></script>{% endblock %}

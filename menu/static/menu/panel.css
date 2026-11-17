@@ -1,0 +1,23 @@
+/* Tablero de pedidos: color por preparación, pago siempre visible aparte. */
+main,.bar{max-width:1920px}
+.toolbar{margin-bottom:12px}.board-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.auto-refresh{display:flex;align-items:center;gap:8px;margin:0;font-size:13px;color:var(--muted)}
+.auto-refresh input{width:18px;height:18px;accent-color:var(--orange)}
+#board-feedback{margin-top:8px;min-height:20px}
+.orders{grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:14px;align-items:start}
+.order-tile{--state:#fb923c;--tint:#412616;display:flex;flex-direction:column;gap:10px;width:100%;min-height:205px;padding:18px;text-align:left;color:#fff;background:linear-gradient(135deg,var(--tint),#141a23);border:1px solid var(--state);border-top:5px solid var(--state);border-radius:16px;cursor:pointer;box-shadow:0 6px 18px #0002;transition:transform .15s,box-shadow .15s;overflow:hidden}
+.tile-preparing{--state:#60a5fa;--tint:#172f50}.tile-ready{--state:#c084fc;--tint:#362047}.tile-completed{--state:#4ade80;--tint:#173c2a}.tile-cancelled{--state:#f87171;--tint:#422124}
+.order-tile:hover{transform:translateY(-3px);box-shadow:0 10px 24px #0005}.order-tile:focus-visible{outline:3px solid #fff}
+.tile-top,.tile-bottom{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%}
+.tile-number{font-size:32px;font-weight:900;line-height:1}.tile-top time{font-size:12px;color:#d1d5db}
+.tile-status{color:var(--state);font-size:17px;font-weight:850}.tile-customer{font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+.tile-bottom{font-size:12px;color:#d1d5db;margin-top:auto}.tile-bottom strong{font-size:16px;color:#fff;white-space:nowrap}
+.tile-payment{align-self:flex-start;max-width:100%}.tile-payment.badge-pending,.tile-payment.badge-review{color:#fed7aa;background:#542c0e}.tile-payment.badge-paid{color:#bbf7d0;background:#14532d}.tile-payment.badge-failed,.tile-payment.badge-cancelled{color:#fecaca;background:#671e25}
+.order-dialog{color:#f5f5f5;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:0;width:min(660px,calc(100% - 32px));max-height:90dvh;overflow:auto;overscroll-behavior:contain;box-shadow:0 30px 100px #0009}
+.order-dialog::backdrop{background:#000b;backdrop-filter:blur(5px)}
+.order-dialog .card{border:0;border-radius:0;padding:26px}.dialog-close{display:flex;margin:0 0 20px auto}.order-dialog .order-head{flex-wrap:wrap}
+body:has(.order-dialog[open]){overflow:hidden}
+@media(min-width:1800px){.orders{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}.order-tile{min-height:220px}.tile-number{font-size:38px}}
+@media(max-width:600px){.orders{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.order-tile{padding:12px;gap:8px;min-height:205px}.tile-top{align-items:start;flex-direction:column}.tile-number{font-size:28px}.tile-status{font-size:15px}.tile-bottom{align-items:start;flex-direction:column;gap:4px}.tile-payment{font-size:10px}.board-controls{width:100%}.order-dialog .card{padding:20px}}
+@media(max-width:350px){.orders{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.order-tile{transition:none}.order-tile:hover{transform:none}}
