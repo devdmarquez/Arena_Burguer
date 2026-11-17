@@ -31,7 +31,8 @@ Abrí http://127.0.0.1:8000/
 
 En este equipo, con el entorno ya preparado, para arrancar solo hace falta el
 último comando. No es necesario volver a crear el administrador existente.
-También podés ejecutar `.\iniciar.cmd`, que usa el entorno correcto.
+En la PC de desarrollo también existe `.\iniciar.cmd`, que usa el entorno correcto.
+Ese archivo es una herramienta local y no se incluye al clonar el repositorio.
 `requirements.txt` fija las versiones exactas verificadas del entorno.
 
 ## Base de datos local
@@ -274,7 +275,9 @@ los archivos estáticos del menú y las fotos públicas para esta prueba. Nunca 
 como servidor definitivo de producción. Después de cambiar `.env`, hay que reiniciar
 esa instancia para que tome las credenciales nuevas.
 
-Para apagar la instancia temporal y su túnel, sin detener el servidor habitual:
+Los archivos `iniciar-pruebas.cmd`, `detener-pagos.cmd` y los scripts PowerShell
+del túnel se conservan únicamente en la PC de desarrollo; no forman parte del
+repositorio. Las instrucciones siguientes describen esas herramientas locales.
 
 Después de reiniciar la computadora, ejecutar `.\iniciar-pruebas.cmd` para abrir
 un túnel nuevo y su instancia protegida. El comando muestra la URL para el celular
@@ -283,6 +286,7 @@ anteriores y deja los pagos desactivados en cada arranque nuevo, hasta actualiza
 y verificar la URL en Mercado Pago. El enlace público anterior no se reutiliza.
 
 ```powershell
+# En la PC de desarrollo, para apagar la instancia temporal y su túnel:
 .\detener-pagos.cmd
 ```
 

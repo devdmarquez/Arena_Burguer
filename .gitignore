@@ -6,3 +6,10 @@ staticfiles/
 .local/
 *.sqlite3
 media/
+
+# Herramientas locales de Windows y del túnel de pruebas; no se publican.
+/iniciar.cmd
+/iniciar-pruebas.cmd
+/detener-pagos.cmd
+/scripts/start_payment_test.ps1
+/scripts/stop_payment_test.ps1
